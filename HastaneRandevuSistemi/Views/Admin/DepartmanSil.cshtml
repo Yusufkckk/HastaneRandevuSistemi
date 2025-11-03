@@ -1,0 +1,34 @@
+﻿@model HastaneRandevuSistemi.Models.Departman
+
+@{
+    ViewData["Title"] = "Departman Sil";
+}
+
+<h2>Departman Sil</h2>
+<hr />
+
+<div class="alert alert-danger">
+    <h4>Bu departmanı silmek istediğinizden emin misiniz?</h4>
+    <p>Bu işlem geri alınamaz.</p>
+</div>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-3">
+            Departman Adı
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.DepartmanAdi)
+        </dd>
+    </dl>
+
+    <form asp-action="DepartmanSil" method="post">
+
+        <input type="hidden" asp-for="DepartmanID" />
+
+        <button type="submit" class="btn btn-danger">
+            <i class="fa fa-trash"></i> Evet, Sil
+        </button>
+        <a asp-action="DepartmanYonetimi" class="btn btn-outline-secondary ms-2">Hayır, Geri Dön</a>
+    </form>
+</div>

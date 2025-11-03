@@ -1,0 +1,30 @@
+﻿@model HastaneRandevuSistemi.Models.Departman
+
+@{
+    ViewData["Title"] = "Yeni Departman Ekle";
+}
+
+<h2>Yeni Departman Ekle</h2>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="DepartmanEkle" method="post">
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group mb-3">
+                <label asp-for="DepartmanAdi" class="control-label">Departman Adı</label>
+                <input asp-for="DepartmanAdi" class="form-control" />
+                <span asp-validation-for="DepartmanAdi" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-save"></i> Kaydet
+                </button>
+                <a asp-action="DepartmanYonetimi" class="btn btn-outline-secondary ms-2">Listeye Geri Dön</a>
+            </div>
+        </form>
+    </div>
+</div>
