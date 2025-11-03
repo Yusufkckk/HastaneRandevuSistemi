@@ -8,6 +8,15 @@ namespace HastaneRandevuSistemi.Models
 {
     public class Doktor
     {
+        
+        // Constructor (Yapıcı Metot)
+        public Doktor()
+        {
+            Randevular = new HashSet<Randevu>();
+            CalismaSaatleri = new HashSet<CalismaSaatleri>();
+        }
+       
+
         [Key]
         public int DoktorID { get; set; }
 
@@ -27,6 +36,7 @@ namespace HastaneRandevuSistemi.Models
         public string Telefon { get; set; }
 
         // Departman ile İlişki (Foreign Key)
+        [Required(ErrorMessage = "Departman seçimi zorunludur.")]
         public int DepartmanID { get; set; }
 
         [ForeignKey("DepartmanID")]

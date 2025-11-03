@@ -1,0 +1,60 @@
+﻿@model HastaneRandevuSistemi.Models.Doktor
+
+@{
+    ViewData["Title"] = "Yeni Doktor Ekle";
+    // Controller'dan gönderilen departman listesini alıyoruz
+    var departmanListesi = ViewBag.Departmanlar as List<Departman>;
+}
+
+<h2>Yeni Doktor Ekle</h2>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="DoktorEkle" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Ad" class="control-label"></label>
+                <input asp-for="Ad" class="form-control" />
+                <span asp-validation-for="Ad" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Soyad" class="control-label"></label>
+                <input asp-for="Soyad" class="form-control" />
+                <span asp-validation-for="Soyad" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Telefon" class="control-label"></label>
+                <input asp-for="Telefon" class="form-control" />
+                <span asp-validation-for="Telefon" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="DepartmanID" class="control-label">Departman</label>
+
+                <select asp-for="DepartmanID" class="form-control"
+                        asp-items="@(new SelectList(departmanListesi, "DepartmanID", "DepartmanAdi"))">
+
+                    <option value="">-- Lütfen bir departman seçin --</option>
+                </select>
+
+                <span asp-validation-for="DepartmanID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-save"></i> Kaydet
+                </button>
+                <a asp-action="DoktorYonetimi" class="btn btn-outline-secondary ms-2">Listeye Geri Dön</a>
+            </div>
+        </form>
+    </div>
+</div>

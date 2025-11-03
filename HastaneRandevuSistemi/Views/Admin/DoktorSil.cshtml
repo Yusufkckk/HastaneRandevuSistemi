@@ -1,0 +1,47 @@
+﻿@model HastaneRandevuSistemi.Models.Doktor
+
+@{
+    ViewData["Title"] = "Doktor Sil";
+}
+
+<h2>Doktor Sil</h2>
+<hr />
+
+<div class="alert alert-danger">
+
+    <h4>Bu doktoru silmek istediğinizden emin misiniz?</h4>
+    <p>Bu işlem geri alınamaz.</p>
+</div>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-3">
+            Ad Soyad
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.Ad) @Html.DisplayFor(model => model.Soyad)
+        </dd>
+        <dt class="col-sm-3">
+            Departman
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.Departman.DepartmanAdi)
+        </dd>
+        <dt class="col-sm-3">
+            Email
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.Email)
+        </dd>
+    </dl>
+
+    <form asp-action="DoktorSil" method="post">
+
+        <input type="hidden" asp-for="DoktorID" />
+
+        <button type="submit" class="btn btn-danger">
+            <i class="fa fa-trash"></i> Evet, Sil
+        </button>
+        <a asp-action="DoktorYonetimi" class="btn btn-outline-secondary ms-2">Hayır, Geri Dön</a>
+    </form>
+</div>

@@ -270,5 +270,236 @@ namespace HastaneRandevuSistemi.Controllers
             return RedirectToAction(nameof(DepartmanYonetimi)); // Listeye geri dön
         }
         // ===========================================
+
+        // DOKTOR YÖNETİMİ BAŞLANGIÇ 
+
+        // GET: /Admin/DoktorYonetimi
+        // Mevcut doktorları listeler
+        public async Task<IActionResult> DoktorYonetimi()
+        {
+            // Session kontrolü
+            if (HttpContext.Session.GetString("AdminKullaniciAdi") == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            // Doktorları çekerken, ".Include(d => d.Departman)" kullanarak
+            // ilişkili Departman bilgilerini de (örn: "Kardiyoloji") getirmesini sağlıyoruz.
+            var doktorlar = await _context.Doktorlar
+                                          .Include(d => d.Departman)
+                                          .ToListAsync();
+
+            return View(doktorlar);
+        }
+
+        // GET: /Admin/DoktorEkle
+        // Yeni doktor ekleme formunu gösterir
+        public async Task<IActionResult> DoktorEkle()
+        {
+            // Session kontrolü
+            if (HttpContext.Session.GetString("AdminKullaniciAdi") == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            // === ÖNEMLİ ===
+            // Forma bir departman seçim listesi (dropdown) göndermemiz gerekiyor.
+            // Veritabanındaki tüm departmanları çekip ViewBag ile View'e gönderiyoruz.
+            ViewBag.Departmanlar = await _context.Departmanlar
+                                                 .OrderBy(d => d.DepartmanAdi)
+                                                 .ToListAsync();
+
+            return View();
+        }
+
+        // POST: /Admin/DoktorEkle
+        // Formdan gelen DOKTOR verisini kaydeder
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DoktorEkle([Bind("Ad,Soyad,Email,Telefon,DepartmanID")] Doktor doktor)
+        {
+            // Session kontrolü
+            if (HttpContext.Session.GetString("AdminKullaniciAdi") == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            // Bu satır, modele bağlılık denetleyicisine (validator) 
+            // "Departman" nesnesinin (ID'sinin değil) 'null' gelmesini 
+            // görmezden gelmesini söyler. Bizim için sadece DepartmanID yeterlidir.
+            ModelState.Remove("Departman");
+
+            // [Bind] kullandığımız için Model geçerliliğini tekrar kontrol ediyoruz
+            // (Constructor eklediğimiz için ICollection'lar sorun çıkarmayacak)
+            if (ModelState.IsValid)
+            {
+                _context.Add(doktor);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(DoktorYonetimi));
+            }
+
+            // === HATA DURUMU ===
+            // Eğer model geçerli değilse (örn: Ad boş bırakıldıysa),
+            // formun tekrar gösterilmesi gerekir.
+            // Ancak formda dropdown listesi olduğu için,
+            // listeyi TEKRAR yükleyip View'e göndermeliyiz.
+            ViewBag.Departmanlar = await _context.Departmanlar
+                                                 .OrderBy(d => d.DepartmanAdi)
+                                                 .ToListAsync();
+
+            // Formu, kullanıcının girdiği veriler + hata mesajları ile geri gönder
+            return View(doktor);
+        }
+
+        // ===========================================
+
+        // DOKTOR DÜZENLEME (GET) 
+        // GET: /Admin/DoktorDuzenle/5 (örn: 5 ID'li doktoru getir)
+        public async Task<IActionResult> DoktorDuzenle(int? id)
+        {
+            // Session kontrolü
+            if (HttpContext.Session.GetString("AdminKullaniciAdi") == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            // Veritabanından o ID'ye sahip doktoru bul
+            var doktor = await _context.Doktorlar.FindAsync(id);
+
+            if (doktor == null)
+            {
+                return NotFound();
+            }
+
+            // === ÖNEMLİ ===
+            // Formdaki departman dropdown listesini doldurmak için 
+            // departmanları çekip ViewBag'e atamalıyız.
+            ViewBag.Departmanlar = await _context.Departmanlar
+                                                 .OrderBy(d => d.DepartmanAdi)
+                                                 .ToListAsync();
+
+            // Doktoru ve departman listesini View'e gönder
+            return View(doktor);
+        }
+        
+
+
+        // (POST)
+        // POST: /Admin/DoktorDuzenle/5
+        // Formdan gelen güncel doktor verisini kaydeder
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DoktorDuzenle(int id, [Bind("DoktorID,Ad,Soyad,Email,Telefon,DepartmanID")] Doktor doktor)
+        {
+            // Session kontrolü
+            if (HttpContext.Session.GetString("AdminKullaniciAdi") == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            if (id != doktor.DoktorID)
+            {
+                return NotFound();
+            }
+
+            // Bir önceki adımdaki hatayı (ModelState) önlemek için
+            // Departman navigation property'sini denetimden çıkarıyoruz.
+            ModelState.Remove("Departman");
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(doktor); // Veriyi güncelle
+                    await _context.SaveChangesAsync(); // Değişiklikleri kaydet
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!_context.Doktorlar.Any(e => e.DoktorID == doktor.DoktorID))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(DoktorYonetimi));
+            }
+
+            // === HATA DURUMU ===
+            // Form geçerli değilse, formu hatalarla tekrar gösterirken
+            // Dropdown listesini TEKRAR yüklemeliyiz.
+            ViewBag.Departmanlar = await _context.Departmanlar
+                                                 .OrderBy(d => d.DepartmanAdi)
+                                                 .ToListAsync();
+            return View(doktor);
+        }
+
+        // ===========================================
+
+        // DOKTOR SİLME (GET) 
+        // GET: /Admin/DoktorSil/5
+        // "Emin misiniz?" onay sayfasını gösterir
+        public async Task<IActionResult> DoktorSil(int? id)
+        {
+            // Session kontrolü
+            if (HttpContext.Session.GetString("AdminKullaniciAdi") == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            // Silinecek doktorun adını ve departmanını göstermek için
+            // Departman bilgisini .Include() ile çekiyoruz.
+            var doktor = await _context.Doktorlar
+                .Include(d => d.Departman)
+                .FirstOrDefaultAsync(m => m.DoktorID == id);
+
+            if (doktor == null)
+            {
+                return NotFound();
+            }
+
+            return View(doktor); // Onay sayfasına gönder
+        }
+        
+
+
+        //DOKTOR SİLME (POST) 
+        // POST: /Admin/DoktorSil/5
+        // Asıl silme işlemini yapar
+        [HttpPost, ActionName("DoktorSil")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DoktorSilOnaylandi(int id)
+        {
+            // Session kontrolü
+            if (HttpContext.Session.GetString("AdminKullaniciAdi") == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            var doktor = await _context.Doktorlar.FindAsync(id);
+            if (doktor != null)
+            {
+                // ÖNEMLİ NOT: Bu doktora bağlı randevular varsa,
+                // veritabanı "Foreign Key constraint" hatası verebilir.
+                // Gerçek bir projede, önce randevular silinir veya
+                // doktor "Pasif" olarak işaretlenir.               
+                _context.Doktorlar.Remove(doktor);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(DoktorYonetimi)); // Listeye geri dön
+        }
     }
 }
