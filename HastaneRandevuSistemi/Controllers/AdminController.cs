@@ -501,5 +501,91 @@ namespace HastaneRandevuSistemi.Controllers
 
             return RedirectToAction(nameof(DoktorYonetimi)); // Listeye geri dön
         }
+
+        // ===== TAKVİM YÖNETİMİ BAŞLANGIÇ =====
+
+        // GET: /Admin/TakvimYonetimi
+        public async Task<IActionResult> TakvimYonetimi()
+        {
+            if (HttpContext.Session.GetString("AdminKullaniciAdi") == null) return RedirectToAction("Login");
+
+            // Çalışma saatlerini, Doktor bilgisiyle birlikte çekiyoruz
+            var takvim = await _context.CalismaSaatleri
+                                       .Include(c => c.Doktor)
+                                       .OrderBy(c => c.Doktor.Ad) // Doktor adına göre sırala
+                                       .ThenBy(c => c.Gun)        // Sonra güne göre sırala
+                                       .ToListAsync();
+            return View(takvim);
+        }
+
+        // GET: /Admin/CalismaSaatiEkle
+        public async Task<IActionResult> CalismaSaatiEkle()
+        {
+            if (HttpContext.Session.GetString("AdminKullaniciAdi") == null) return RedirectToAction("Login");
+
+            // Doktor listesini dropdown için gönderiyoruz
+            ViewBag.Doktorlar = await _context.Doktorlar
+                                              .Select(d => new {
+                                                  d.DoktorID,
+                                                  AdSoyad = d.Ad + " " + d.Soyad + " (" + d.Departman.DepartmanAdi + ")"
+                                              })
+                                              .ToListAsync();
+            return View();
+        }
+
+        // POST: /Admin/CalismaSaatiEkle
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CalismaSaatiEkle(CalismaSaatleri calismaSaati)
+        {
+            if (HttpContext.Session.GetString("AdminKullaniciAdi") == null) return RedirectToAction("Login");
+
+            // "Doktor" nesnesinin null gelmesini önemseme (sadece ID lazım)
+            ModelState.Remove("Doktor");
+
+            if (ModelState.IsValid)
+            {
+                // Aynı doktora aynı gün için zaten kayıt var mı kontrol et
+                bool kayitVarMi = await _context.CalismaSaatleri.AnyAsync(c =>
+                    c.DoktorID == calismaSaati.DoktorID && c.Gun == calismaSaati.Gun);
+
+                if (kayitVarMi)
+                {
+                    ModelState.AddModelError("", "Bu doktor için seçilen güne ait kayıt zaten var.");
+                }
+                else
+                {
+                    _context.Add(calismaSaati);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(TakvimYonetimi));
+                }
+            }
+
+            // Hata varsa listeyi tekrar yükle
+            ViewBag.Doktorlar = await _context.Doktorlar
+                                              .Select(d => new {
+                                                  d.DoktorID,
+                                                  AdSoyad = d.Ad + " " + d.Soyad + " (" + d.Departman.DepartmanAdi + ")"
+                                              })
+                                              .ToListAsync();
+            return View(calismaSaati);
+        }
+
+        // SİLME İŞLEMİ 
+        // GET: /Admin/CalismaSaatiSil/5
+        public async Task<IActionResult> CalismaSaatiSil(int id)
+        {
+            if (HttpContext.Session.GetString("AdminKullaniciAdi") == null) return RedirectToAction("Login");
+
+            var kayit = await _context.CalismaSaatleri.FindAsync(id);
+            if (kayit != null)
+            {
+                _context.CalismaSaatleri.Remove(kayit);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(TakvimYonetimi));
+        }
+
+        // ===== TAKVİM YÖNETİMİ BİTİŞ =====
     }
 }

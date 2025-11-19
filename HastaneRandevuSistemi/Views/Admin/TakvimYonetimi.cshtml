@@ -1,0 +1,68 @@
+﻿@model IEnumerable<HastaneRandevuSistemi.Models.CalismaSaatleri>
+
+@{
+    ViewData["Title"] = "Çalışma Saatleri";
+}
+
+<h2>Takvim Yönetimi (Çalışma Saatleri)</h2>
+<hr />
+
+<p>
+    <a asp-action="CalismaSaatiEkle" class="btn btn-success">
+        <i class="fa fa-plus"></i> Yeni Çalışma Saati Ekle
+    </a>
+</p>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Doktor</th>
+            <th>Gün</th>
+            <th>Başlangıç</th>
+            <th>Bitiş</th>
+            <th>İşlem</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Doktor.Ad @item.Doktor.Soyad</td>
+                <td>
+                    @switch (item.Gun)
+                    {
+                        case DayOfWeek.Monday:
+                            <span class="badge bg-primary">Pazartesi</span>
+                            ; break;
+                        case DayOfWeek.Tuesday:
+                            <span class="badge bg-primary">Salı</span>
+                            ; break;
+                        case DayOfWeek.Wednesday:
+                            <span class="badge bg-primary">Çarşamba</span>
+                            ; break;
+                        case DayOfWeek.Thursday:
+                            <span class="badge bg-primary">Perşembe</span>
+                            ; break;
+                        case DayOfWeek.Friday:
+                            <span class="badge bg-primary">Cuma</span>
+                            ; break;
+                        case DayOfWeek.Saturday:
+                            <span class="badge bg-warning text-dark">Cumartesi</span>
+                            ; break;
+                        case DayOfWeek.Sunday:
+                            <span class="badge bg-danger">Pazar</span>
+                            ; break;
+                    }
+                </td>
+                <td>@item.BaslangicSaati.ToString(@"hh\:mm")</td>
+                <td>@item.BitisSaati.ToString(@"hh\:mm")</td>
+                <td>
+                    <a asp-action="CalismaSaatiSil" asp-route-id="@item.CalismaSaatiID"
+                       class="btn btn-danger btn-sm" onclick="return confirm('Silmek istediğinize emin misiniz?');">
+                        <i class="fa fa-trash"></i> Sil
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
