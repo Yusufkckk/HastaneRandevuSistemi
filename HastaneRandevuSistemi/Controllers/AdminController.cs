@@ -586,6 +586,96 @@ namespace HastaneRandevuSistemi.Controllers
             return RedirectToAction(nameof(TakvimYonetimi));
         }
 
-        // ===== TAKVİM YÖNETİMİ BİTİŞ =====
+
+        // ===== DUYURU YÖNETİMİ BAŞLANGIÇ =====
+
+        // GET: /Admin/DuyuruYonetimi
+        public async Task<IActionResult> DuyuruYonetimi()
+        {
+            if (HttpContext.Session.GetString("AdminKullaniciAdi") == null) return RedirectToAction("Login");
+
+            // Duyuruları tarihe göre (en yeni en üstte) sırala
+            var duyurular = await _context.Duyurular
+                                          .OrderByDescending(d => d.YayinTarihi)
+                                          .ToListAsync();
+            return View(duyurular);
+
+        }
+
+        // GET: /Admin/DuyuruEkle
+        public IActionResult DuyuruEkle()
+        {
+            if (HttpContext.Session.GetString("AdminKullaniciAdi") == null) return RedirectToAction("Login");
+            return View();
+
+        }
+
+        // POST: /Admin/DuyuruEkle
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DuyuruEkle(Duyuru duyuru)
+        {
+            if (HttpContext.Session.GetString("AdminKullaniciAdi") == null) return RedirectToAction("Login");
+
+            if (ModelState.IsValid)
+            {
+                duyuru.YayinTarihi = DateTime.Now; // Yayın tarihi şu an olsun
+                _context.Add(duyuru);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(DuyuruYonetimi));
+            }
+            return View(duyuru);
+        }
+
+        // GET: /Admin/DuyuruSil/5
+        public async Task<IActionResult> DuyuruSil(int id)
+        {
+            if (HttpContext.Session.GetString("AdminKullaniciAdi") == null) return RedirectToAction("Login");
+
+            var duyuru = await _context.Duyurular.FindAsync(id);
+            if (duyuru != null)
+            {
+                _context.Duyurular.Remove(duyuru);
+                await _context.SaveChangesAsync();
+            }
+            // Silme işlemi için ayrı bir onay sayfası yapmadık, direkt silip listeye dönüyoruz.
+            // View tarafında JavaScript onayı (confirm) kullanacağız.
+            return RedirectToAction(nameof(DuyuruYonetimi));
+        }
+
+        // ===== RANDEVU LİSTESİ (ADMİN) BAŞLANGIÇ =====
+
+        // GET: /Admin/TumRandevular
+        public async Task<IActionResult> TumRandevular()
+        {
+            if (HttpContext.Session.GetString("AdminKullaniciAdi") == null) return RedirectToAction("Login");
+
+            // Tüm randevuları; Hasta, Doktor ve Departman bilgileriyle beraber çek
+            // Tarihe göre (en yakın tarih en üstte) sırala
+            var randevular = await _context.Randevular
+                                           .Include(r => r.Hasta)
+                                           .Include(r => r.Doktor)
+                                           .ThenInclude(d => d.Departman)
+                                           .OrderByDescending(r => r.RandevuTarihi)
+                                           .ToListAsync();
+
+            return View(randevular);
+        }
+
+        // (Opsiyonel) Admin'in randevu iptal etmesi gerekirse diye
+        // GET: /Admin/RandevuIptal/5
+        public async Task<IActionResult> RandevuIptal(int id)
+        {
+            if (HttpContext.Session.GetString("AdminKullaniciAdi") == null) return RedirectToAction("Login");
+
+            var randevu = await _context.Randevular.FindAsync(id);
+            if (randevu != null)
+            {
+                randevu.Durum = 3; // İptal statüsüne çek
+                _context.Update(randevu);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(TumRandevular));
+        }
     }
 }

@@ -98,5 +98,48 @@ namespace HastaneRandevuSistemi.Controllers
             HttpContext.Session.Clear();
             return RedirectToAction("Index", "Home");
         }
+
+        // ===== PROFİL YÖNETİMİ BAŞLANGIÇ =====
+
+        // GET: /Account/Profil
+        public async Task<IActionResult> Profil()
+        {
+            int? hastaId = HttpContext.Session.GetInt32("HastaID");
+            if (hastaId == null) return RedirectToAction("Login");
+
+            var hasta = await _context.Hastalar.FindAsync(hastaId);
+            return View(hasta);
+
+        }
+
+        // POST: /Account/Profil
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Profil(Hasta gelenVeri, string? YeniSifre)
+        {
+            int? hastaId = HttpContext.Session.GetInt32("HastaID");
+            if (hastaId == null) return RedirectToAction("Login");
+
+            // Veritabanındaki asıl kaydı buluyoruz
+            var hastaDb = await _context.Hastalar.FindAsync(hastaId);
+
+            if (hastaDb == null) return NotFound();
+
+            // Sadece izin verdiğimiz alanları güncelliyoruz
+            hastaDb.Telefon = gelenVeri.Telefon;
+            hastaDb.Email = gelenVeri.Email;
+
+            // Eğer yeni şifre kutusu doluysa şifreyi de değiştir
+            if (!string.IsNullOrEmpty(YeniSifre))
+            {
+                hastaDb.Sifre = Sifreleyici.ComputeSha256Hash(YeniSifre);
+            }
+
+            _context.Update(hastaDb);
+            await _context.SaveChangesAsync();
+
+            TempData["Mesaj"] = "Profil bilgileriniz güncellendi.";
+            return RedirectToAction(nameof(Profil));
+        }
     }
 }

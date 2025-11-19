@@ -1,0 +1,60 @@
+﻿@model IEnumerable<HastaneRandevuSistemi.Models.Randevu>
+@{
+    ViewData["Title"] = "Tüm Randevular";
+}
+
+<h2>Sistemdeki Tüm Randevular</h2>
+<hr />
+
+<table class="table table-bordered table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Tarih</th>
+            <th>Saat</th>
+            <th>Hasta Adı</th>
+            <th>Doktor</th>
+            <th>Departman</th>
+            <th>Durum</th>
+            <th>İşlem</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            // İptal edilenler gri görünsün
+            string satirClass = (item.Durum == 3) ? "table-secondary text-muted" : "";
+
+            <tr class="@satirClass">
+                <td>@item.RandevuTarihi.ToString("dd.MM.yyyy")</td>
+                <td>@item.RandevuTarihi.ToString("HH:mm")</td>
+                <td>@item.Hasta.Ad @item.Hasta.Soyad <br /><small>(@item.Hasta.TCKimlikNo)</small></td>
+                <td>@item.Doktor.Ad @item.Doktor.Soyad</td>
+                <td>@item.Doktor.Departman.DepartmanAdi</td>
+                <td>
+                    @if (item.Durum == 1)
+                    {
+                        <span class="badge bg-success">Aktif</span>
+                    }
+                    else if (item.Durum == 3)
+                    {
+                        <span class="badge bg-danger">İptal</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Tamamlandı</span>
+                    }
+                </td>
+                <td>
+                    @if (item.Durum != 3 && item.RandevuTarihi > DateTime.Now)
+                    {
+                        <a asp-action="RandevuIptal" asp-route-id="@item.RandevuID"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('Admin yetkisiyle bu randevuyu iptal etmek istiyor musunuz?');">
+                            İptal Et
+                        </a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

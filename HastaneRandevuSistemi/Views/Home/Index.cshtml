@@ -1,8 +1,47 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<HastaneRandevuSistemi.Models.Duyuru>
+@{
+    ViewData["Title"] = "Ana Sayfa";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="p-5 mb-4 bg-light rounded-3 shadow-sm text-center">
+    <div class="container-fluid py-5">
+        <h1 class="display-5 fw-bold text-primary">Özel Şifa Hastanesi</h1>
+        <p class="col-md-8 fs-4 mx-auto">Sağlığınız bizim için değerli. Uzman kadromuzla 7/24 hizmetinizdeyiz.</p>
+
+        @if (Context.Session.GetString("HastaKullaniciAdi") == null)
+        {
+            <a class="btn btn-primary btn-lg" asp-controller="Account" asp-action="Login">Giriş Yap</a>
+            <a class="btn btn-outline-primary btn-lg" asp-controller="Account" asp-action="Register">Kayıt Ol</a>
+        }
+        else
+        {
+            <a class="btn btn-success btn-lg" asp-controller="Randevu" asp-action="RandevuAl">Hemen Randevu Al</a>
+        }
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <h3 class="border-bottom pb-2 mb-3"><i class="fas fa-bullhorn"></i> Güncel Duyurular</h3>
+
+        @if (!Model.Any())
+        {
+            <div class="alert alert-info">Şu anda güncel bir duyuru bulunmamaktadır.</div>
+        }
+        else
+        {
+            <div class="list-group">
+                @foreach (var duyuru in Model)
+                {
+                    <div class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1 text-primary">@duyuru.Baslik</h5>
+                            <small class="text-muted">@duyuru.YayinTarihi.ToString("dd.MM.yyyy")</small>
+                        </div>
+                        <p class="mb-1">@duyuru.Icerik</p>
+                    </div>
+                }
+            </div>
+        }
+    </div>
 </div>
