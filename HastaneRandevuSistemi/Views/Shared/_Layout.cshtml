@@ -54,8 +54,30 @@
                         }
                         else if (Context.Session.GetString("HastaKullaniciAdi") != null)
                         {
-                            // 2. Hasta GİRİŞ YAPMIŞSA (Bunu daha sonra kodlayacağız)
-                            // Şimdilik yerini ayırıyoruz
+                            // 2. Hasta GİRİŞ YAPMIŞSA - MENÜ
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa-solid fa-hospital-user"></i> @Context.Session.GetString("HastaKullaniciAdi")
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Randevu" asp-action="Index">
+                                            <i class="fa-solid fa-calendar-check"></i> Randevularım
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Randevu" asp-action="RandevuAl">
+                                            <i class="fa-solid fa-plus-circle"></i> Randevu Al
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="Logout">
+                                            <i class="fa-solid fa-sign-out-alt"></i> Çıkış Yap
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
                         }
                         else
                         {

@@ -1,0 +1,62 @@
+﻿@model HastaneRandevuSistemi.Models.Hasta
+@{
+    ViewData["Title"] = "Kayıt Ol";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow mt-5">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title"><i class="fas fa-user-plus"></i> Hasta Kayıt Formu</h3>
+            </div>
+            <div class="card-body">
+                @if (ViewBag.Hata != null)
+                {
+                    <div class="alert alert-danger">@ViewBag.Hata</div>
+                }
+
+                <form asp-action="Register">
+                    <div asp-validation-summary="All" class="text-danger"></div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Ad" class="form-label">Ad</label>
+                            <input asp-for="Ad" class="form-control" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Soyad" class="form-label">Soyad</label>
+                            <input asp-for="Soyad" class="form-control" required />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="TCKimlikNo" class="form-label">TC Kimlik No</label>
+                        <input asp-for="TCKimlikNo" class="form-control" maxlength="11" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">E-Posta</label>
+                        <input asp-for="Email" type="email" class="form-control" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Telefon" class="form-label">Telefon</label>
+                        <input asp-for="Telefon" class="form-control" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Sifre" class="form-label">Şifre</label>
+                        <input asp-for="Sifre" type="password" class="form-control" required />
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-block">Kayıt Ol</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                Zaten hesabınız var mı? <a asp-action="Login">Giriş Yap</a>
+            </div>
+        </div>
+    </div>
+</div>
