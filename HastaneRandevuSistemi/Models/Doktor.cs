@@ -28,6 +28,10 @@ namespace HastaneRandevuSistemi.Models
         [StringLength(50)]
         public string Soyad { get; set; }
 
+        [Required(ErrorMessage = "Cinsiyet seçimi zorunludur.")]
+        [StringLength(10)] // "Kadın" veya "Erkek" yazacağız
+        public string Cinsiyet { get; set; }
+
         [EmailAddress]
         [StringLength(100)]
         public string Email { get; set; }

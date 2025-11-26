@@ -316,7 +316,7 @@ namespace HastaneRandevuSistemi.Controllers
         // Formdan gelen DOKTOR verisini kaydeder
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DoktorEkle([Bind("Ad,Soyad,Email,Telefon,DepartmanID")] Doktor doktor)
+        public async Task<IActionResult> DoktorEkle([Bind("Ad,Soyad,Email,Telefon,DepartmanID,Cinsiyet")] Doktor doktor)
         {
             // Session kontrolü
             if (HttpContext.Session.GetString("AdminKullaniciAdi") == null)
@@ -394,7 +394,7 @@ namespace HastaneRandevuSistemi.Controllers
         // Formdan gelen güncel doktor verisini kaydeder
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DoktorDuzenle(int id, [Bind("DoktorID,Ad,Soyad,Email,Telefon,DepartmanID")] Doktor doktor)
+        public async Task<IActionResult> DoktorDuzenle(int id, [Bind("DoktorID,Ad,Soyad,Email,Telefon,DepartmanID,Cinsiyet")] Doktor doktor)
         {
             // Session kontrolü
             if (HttpContext.Session.GetString("AdminKullaniciAdi") == null)

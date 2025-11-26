@@ -3,26 +3,14 @@
 @{
     ViewData["Title"] = "Doktorlarımız";
 
-    // === CİNSİYET TAHMİNİ İÇİN BASİT YARDIMCI FONKSİYON ===
-    string ResimGetir(string ad, int id)
+    // === YENİ RESİM GETİR FONKSİYONU ===
+    // Artık isme değil, veritabanındaki 'cinsiyet' alanına bakıyoruz.
+    string ResimGetir(string cinsiyet, int id)
     {
-        // Yaygın kadın isimleri listesi (Büyük/Küçük harf duyarlılığını kaldırmak için hepsini küçük yazalım)
-        string[] kadinIsimleri = {
-            "ayşe", "fatma", "zeynep", "elif", "merve", "gamze", "seda", "hatice", "büşra", "kübra", "esra",
-            "aslı", "banu", "ceylan", "deniz", "ece", "funda", "gizem", "hale", "ipek", "jale", "lale",
-            "mine", "nazlı", "oya", "pelin", "rana", "selin", "tuğçe", "yasemin", "zuhal", "özge", "özlem"
-        };
+        // Veritabanında "Kadın" yazıyorsa "women" klasörünü, yoksa "men" klasörünü kullan
+        string cinsiyetKlasoru = (cinsiyet == "Kadın") ? "women" : "men";
 
-        // Adın ilk kelimesini alıp küçük harfe çevirelim (Örn: "Ayşe Gül" -> "ayşe")
-        string ilkIsim = ad.Trim().Split(' ')[0].ToLower();
-
-        // Eğer isim listede varsa "women", yoksa varsayılan olarak "men" klasörünü seç
-        string cinsiyetKlasoru = kadinIsimleri.Contains(ilkIsim) ? "women" : "men";
-
-        // ID'nin son rakamını kullanarak 0-99 arası bir resim numarası seçelim (sabit kalsın diye)
-        // Böylece sayfayı yenileyince resim değişmez.
         int resimNo = id % 99;
-
         return $"https://randomuser.me/api/portraits/{cinsiyetKlasoru}/{resimNo}.jpg";
     }
 }
@@ -47,7 +35,7 @@
                     <div class="card shadow-sm border-0 h-100 text-center doctor-card">
                         <div class="card-body p-4">
                             <div class="mb-3">
-                                <img src="@ResimGetir(item.Ad, item.DoktorID)"
+                                <img src="@ResimGetir(item.Cinsiyet, item.DoktorID)"
                                      class="rounded-circle shadow border border-3 border-white"
                                      width="120" height="120"
                                      style="object-fit: cover;"
@@ -61,14 +49,7 @@
                                 <span class="badge bg-light text-dark border"><i class="fas fa-envelope"></i> @item.Email</span>
                             </div>
 
-                            @if (Context.Session.GetString("HastaKullaniciAdi") != null)
-                            {
-                                <a asp-controller="Randevu" asp-action="RandevuAl" class="btn btn-outline-primary btn-sm rounded-pill w-100">Randevu Al</a>
-                            }
-                            else
-                            {
-                                <a asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary btn-sm rounded-pill w-100">Giriş Yap</a>
-                            }
+                            
                         </div>
                     </div>
                 </div>

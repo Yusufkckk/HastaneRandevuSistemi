@@ -1,30 +1,34 @@
 ﻿@model HastaneRandevuSistemi.Models.Departman
-
 @{
     ViewData["Title"] = "Yeni Departman Ekle";
 }
 
-<h2>Yeni Departman Ekle</h2>
-<hr />
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="m-0 font-weight-bold text-primary"><i class="fas fa-clinic-medical"></i> Yeni Poliklinik Ekle</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="DepartmanEkle" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="DepartmanEkle" method="post">
+                        <div class="form-group mb-4">
+                            <label asp-for="DepartmanAdi" class="form-label fw-bold text-muted small">DEPARTMAN / POLİKLİNİK ADI</label>
+                            <input asp-for="DepartmanAdi" class="form-control form-control-lg" placeholder="Örn: Göz Hastalıkları" />
+                            <span asp-validation-for="DepartmanAdi" class="text-danger"></span>
+                        </div>
 
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            <div class="form-group mb-3">
-                <label asp-for="DepartmanAdi" class="control-label">Departman Adı</label>
-                <input asp-for="DepartmanAdi" class="form-control" />
-                <span asp-validation-for="DepartmanAdi" class="text-danger"></span>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg shadow-sm">
+                                <i class="fas fa-save"></i> Kaydet
+                            </button>
+                            <a asp-action="DepartmanYonetimi" class="btn btn-light text-muted">İptal</a>
+                        </div>
+                    </form>
+                </div>
             </div>
-
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fa fa-save"></i> Kaydet
-                </button>
-                <a asp-action="DepartmanYonetimi" class="btn btn-outline-secondary ms-2">Listeye Geri Dön</a>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
