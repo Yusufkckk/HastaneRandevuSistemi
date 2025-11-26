@@ -15,10 +15,11 @@
                     </h5>
                 </div>
                 <div class="card-body p-4">
-                    <form asp-action="DoktorDuzenle" method="post">
+                    <form asp-action="DoktorDuzenle" method="post" enctype="multipart/form-data">
                         <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
 
                         <input type="hidden" asp-for="DoktorID" />
+                        <input type="hidden" asp-for="ResimYolu" />
 
                         <div class="row">
                             <div class="col-md-6 form-group mb-3">
@@ -67,12 +68,32 @@
                             </div>
                         </div>
 
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-muted small">MEVCUT FOTOĞRAF</label>
+                            <div class="d-flex align-items-center">
+                                @if (!string.IsNullOrEmpty(Model.ResimYolu))
+                                {
+                                    <img src="~/img/@Model.ResimYolu" width="80" height="80" class="rounded-circle border me-3" style="object-fit:cover" />
+                                }
+                                else
+                                {
+                                    <div class="me-3 p-3 bg-light rounded border">Resim Yok</div>
+                                }
+
+                                <div class="flex-grow-1">
+                                    <label asp-for="ResimDosyasi" class="form-label small">Fotoğrafı Değiştir</label>
+                                    <input asp-for="ResimDosyasi" type="file" class="form-control" accept="image/*" />
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary btn-lg shadow-sm">
                                 <i class="fas fa-sync-alt"></i> Bilgileri Güncelle
                             </button>
                             <a asp-action="DoktorYonetimi" class="btn btn-light text-muted">İptal</a>
                         </div>
+
                     </form>
                 </div>
             </div>

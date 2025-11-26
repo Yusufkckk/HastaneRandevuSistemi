@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Http; // Bunu en üste ekleyin
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
 
 
 
@@ -38,6 +40,10 @@ namespace HastaneRandevuSistemi.Models
 
         [StringLength(20)]
         public string Telefon { get; set; }
+        public string? ResimYolu { get; set; } // Veritabanına kaydedilecek dosya adı
+
+        [NotMapped] // Veritabanında kolon oluşturma, sadece dosya taşıma için
+        public IFormFile? ResimDosyasi { get; set; }
 
         // Departman ile İlişki (Foreign Key)
         [Required(ErrorMessage = "Departman seçimi zorunludur.")]

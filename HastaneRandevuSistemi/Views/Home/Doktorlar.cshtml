@@ -3,13 +3,11 @@
 @{
     ViewData["Title"] = "Doktorlarımız";
 
-    // === YENİ RESİM GETİR FONKSİYONU ===
-    // Artık isme değil, veritabanındaki 'cinsiyet' alanına bakıyoruz.
-    string ResimGetir(string cinsiyet, int id)
+    // === API'DEN RESİM GETİRME FONKSİYONU (Yedek Plan) ===
+    // Eğer admin özel bir resim yüklemediyse bu çalışır.
+    string ApiResimGetir(string cinsiyet, int id)
     {
-        // Veritabanında "Kadın" yazıyorsa "women" klasörünü, yoksa "men" klasörünü kullan
         string cinsiyetKlasoru = (cinsiyet == "Kadın") ? "women" : "men";
-
         int resimNo = id % 99;
         return $"https://randomuser.me/api/portraits/{cinsiyetKlasoru}/{resimNo}.jpg";
     }
@@ -34,22 +32,32 @@
                 <div class="col-md-6 col-lg-3 mb-4">
                     <div class="card shadow-sm border-0 h-100 text-center doctor-card">
                         <div class="card-body p-4">
-                            <div class="mb-3">
-                                <img src="@ResimGetir(item.Cinsiyet, item.DoktorID)"
-                                     class="rounded-circle shadow border border-3 border-white"
-                                     width="120" height="120"
-                                     style="object-fit: cover;"
-                                     alt="@item.Ad @item.Soyad">
-                            </div>
 
-                            <h5 class="fw-bold mb-1">Dr. @item.Ad @item.Soyad</h5>
+                            <div class="mb-3">
+                                @if (!string.IsNullOrEmpty(item.ResimYolu))
+                                {
+                                    <img src="~/img/@item.ResimYolu"
+                                         class="rounded-circle shadow border border-3 border-white"
+                                         width="120" height="120"
+                                         style="object-fit: cover;"
+                                         alt="@item.Ad @item.Soyad">
+                                }
+                                else
+                                {
+                                    <img src="@ApiResimGetir(item.Cinsiyet, item.DoktorID)"
+                                         class="rounded-circle shadow border border-3 border-white"
+                                         width="120" height="120"
+                                         style="object-fit: cover;"
+                                         alt="@item.Ad @item.Soyad">
+                                }
+                            </div>
+                            <h5 class="fw-bold mb-1">@item.Ad @item.Soyad</h5>
                             <p class="text-primary small fw-bold text-uppercase mb-3">@item.Departman.DepartmanAdi</p>
 
                             <div class="d-flex justify-content-center gap-2 mb-3">
                                 <span class="badge bg-light text-dark border"><i class="fas fa-envelope"></i> @item.Email</span>
                             </div>
 
-                            
                         </div>
                     </div>
                 </div>

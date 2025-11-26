@@ -12,10 +12,13 @@ namespace HastaneRandevuSistemi.Controllers
         // Veritabanı bağlantı nesnemiz
         private readonly ApplicationDbContext _context;
 
-        // Constructor (Yapıcı Metot) - DbContext'i projeden isteme (Dependency Injection)
-        public AdminController(ApplicationDbContext context)
+        private readonly IWebHostEnvironment _hostEnvironment; // Dosya yolu için gerekli
+
+        // Constructor'a 'IWebHostEnvironment' ekledik
+        public AdminController(ApplicationDbContext context, IWebHostEnvironment hostEnvironment)
         {
             _context = context;
+            _hostEnvironment = hostEnvironment;
         }
 
 
@@ -316,38 +319,54 @@ namespace HastaneRandevuSistemi.Controllers
         // Formdan gelen DOKTOR verisini kaydeder
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DoktorEkle([Bind("Ad,Soyad,Email,Telefon,DepartmanID,Cinsiyet")] Doktor doktor)
+        public async Task<IActionResult> DoktorEkle([Bind("Ad,Soyad,Email,Telefon,DepartmanID,Cinsiyet,ResimDosyasi")] Doktor doktor)
         {
-            // Session kontrolü
-            if (HttpContext.Session.GetString("AdminKullaniciAdi") == null)
-            {
-                return RedirectToAction("Login");
-            }
+            if (HttpContext.Session.GetString("AdminKullaniciAdi") == null) return RedirectToAction("Login");
 
-            // Bu satır, modele bağlılık denetleyicisine (validator) 
-            // "Departman" nesnesinin (ID'sinin değil) 'null' gelmesini 
-            // görmezden gelmesini söyler. Bizim için sadece DepartmanID yeterlidir.
-            ModelState.Remove("Departman");
+            ModelState.Remove("Departman"); // Departman nesne kontrolünü atla
 
-            // [Bind] kullandığımız için Model geçerliliğini tekrar kontrol ediyoruz
-            // (Constructor eklediğimiz için ICollection'lar sorun çıkarmayacak)
             if (ModelState.IsValid)
             {
+                // === RESİM YÜKLEME İŞLEMİ ===
+                if (doktor.ResimDosyasi != null)
+                {
+                    // 1. Resimlerin kaydedileceği klasör yolu: wwwroot/img/
+                    string wwwRootPath = _hostEnvironment.WebRootPath;
+                    string fileName = Path.GetFileNameWithoutExtension(doktor.ResimDosyasi.FileName);
+                    string extension = Path.GetExtension(doktor.ResimDosyasi.FileName);
+
+                    // 2. Dosya adına benzersiz bir isim ver (çakışmayı önlemek için)
+                    fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
+
+                    // 3. Klasör yoksa oluştur (img klasörü)
+                    string path = Path.Combine(wwwRootPath + "/img/");
+                    if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+
+                    string pathFoto = Path.Combine(wwwRootPath + "/img/", fileName);
+
+                    // 4. Dosyayı kaydet
+                    using (var fileStream = new FileStream(pathFoto, FileMode.Create))
+                    {
+                        await doktor.ResimDosyasi.CopyToAsync(fileStream);
+                    }
+
+                    // 5. Veritabanına sadece dosya adını yaz
+                    doktor.ResimYolu = fileName;
+                }
+                else
+                {
+                    
+                    doktor.ResimYolu = "default.png"; 
+                }
+                // =============================
+
                 _context.Add(doktor);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(DoktorYonetimi));
             }
 
-            // === HATA DURUMU ===
-            // Eğer model geçerli değilse (örn: Ad boş bırakıldıysa),
-            // formun tekrar gösterilmesi gerekir.
-            // Ancak formda dropdown listesi olduğu için,
-            // listeyi TEKRAR yükleyip View'e göndermeliyiz.
-            ViewBag.Departmanlar = await _context.Departmanlar
-                                                 .OrderBy(d => d.DepartmanAdi)
-                                                 .ToListAsync();
-
-            // Formu, kullanıcının girdiği veriler + hata mesajları ile geri gönder
+            // Hata olursa departmanları tekrar yükle
+            ViewBag.Departmanlar = await _context.Departmanlar.OrderBy(d => d.DepartmanAdi).ToListAsync();
             return View(doktor);
         }
 
@@ -386,58 +405,67 @@ namespace HastaneRandevuSistemi.Controllers
             // Doktoru ve departman listesini View'e gönder
             return View(doktor);
         }
-        
 
 
-        // (POST)
+
         // POST: /Admin/DoktorDuzenle/5
-        // Formdan gelen güncel doktor verisini kaydeder
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DoktorDuzenle(int id, [Bind("DoktorID,Ad,Soyad,Email,Telefon,DepartmanID,Cinsiyet")] Doktor doktor)
+        public async Task<IActionResult> DoktorDuzenle(int id, [Bind("DoktorID,Ad,Soyad,Email,Telefon,DepartmanID,Cinsiyet,ResimDosyasi,ResimYolu")] Doktor doktor)
         {
-            // Session kontrolü
-            if (HttpContext.Session.GetString("AdminKullaniciAdi") == null)
-            {
-                return RedirectToAction("Login");
-            }
+            if (HttpContext.Session.GetString("AdminKullaniciAdi") == null) return RedirectToAction("Login");
 
-            if (id != doktor.DoktorID)
-            {
-                return NotFound();
-            }
+            if (id != doktor.DoktorID) return NotFound();
 
-            // Bir önceki adımdaki hatayı (ModelState) önlemek için
-            // Departman navigation property'sini denetimden çıkarıyoruz.
             ModelState.Remove("Departman");
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(doktor); // Veriyi güncelle
-                    await _context.SaveChangesAsync(); // Değişiklikleri kaydet
+                    // === RESİM GÜNCELLEME İŞLEMİ (DÜZELTİLDİ) ===
+                    if (doktor.ResimDosyasi != null)
+                    {
+                        string wwwRootPath = _hostEnvironment.WebRootPath;
+                        string fileName = Path.GetFileNameWithoutExtension(doktor.ResimDosyasi.FileName);
+                        string extension = Path.GetExtension(doktor.ResimDosyasi.FileName);
+                        fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
+
+                        // --- HATA ÇÖZÜMÜ BURADA ---
+                        // 1. Önce klasör yolunu tanımlıyoruz
+                        string folderPath = Path.Combine(wwwRootPath, "img");
+
+                        // 2. Klasör var mı kontrol ediyoruz, yoksa OLUŞTURUYORUZ
+                        if (!Directory.Exists(folderPath))
+                        {
+                            Directory.CreateDirectory(folderPath);
+                        }
+
+                        // 3. Dosya yolunu birleştiriyoruz
+                        string path = Path.Combine(folderPath, fileName);
+                        // ---------------------------
+
+                        using (var fileStream = new FileStream(path, FileMode.Create))
+                        {
+                            await doktor.ResimDosyasi.CopyToAsync(fileStream);
+                        }
+
+                        doktor.ResimYolu = fileName; // Yeni ismi kaydet
+                    }
+                    // ===============================
+
+                    _context.Update(doktor);
+                    await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!_context.Doktorlar.Any(e => e.DoktorID == doktor.DoktorID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!_context.Doktorlar.Any(e => e.DoktorID == doktor.DoktorID)) return NotFound();
+                    else throw;
                 }
                 return RedirectToAction(nameof(DoktorYonetimi));
             }
 
-            // === HATA DURUMU ===
-            // Form geçerli değilse, formu hatalarla tekrar gösterirken
-            // Dropdown listesini TEKRAR yüklemeliyiz.
-            ViewBag.Departmanlar = await _context.Departmanlar
-                                                 .OrderBy(d => d.DepartmanAdi)
-                                                 .ToListAsync();
+            ViewBag.Departmanlar = await _context.Departmanlar.OrderBy(d => d.DepartmanAdi).ToListAsync();
             return View(doktor);
         }
 
