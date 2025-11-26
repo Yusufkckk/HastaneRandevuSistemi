@@ -3,6 +3,7 @@ using HastaneRandevuSistemi.Data; // Veritabanı bağlantısı için eklendi
 using HastaneRandevuSistemi.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq; // Sıralama ve filtreleme (OrderBy, Take) için gerekli
+using Microsoft.EntityFrameworkCore;
 
 namespace HastaneRandevuSistemi.Controllers
 {
@@ -33,6 +34,25 @@ namespace HastaneRandevuSistemi.Controllers
 
             // Duyurular listesini View'e model olarak gönderiyoruz
             return View(duyurular);
+        }
+
+        // GET: /Home/Hakkimizda
+        public IActionResult Hakkimizda()
+        {
+
+            return View();
+        }
+
+        // GET: /Home/Doktorlar
+        public async Task<IActionResult> Doktorlar()
+        {
+
+            // Doktorları ve bölümlerini getiriyoruz
+            var doktorlar = await _context.Doktorlar
+                                          .Include(d => d.Departman)
+                                          .OrderBy(d => d.Ad)
+                                          .ToListAsync();
+            return View(doktorlar);
         }
 
         public IActionResult Privacy()

@@ -1,0 +1,89 @@
+﻿@model IEnumerable<HastaneRandevuSistemi.Models.Doktor>
+
+@{
+    ViewData["Title"] = "Doktorlarımız";
+
+    // === CİNSİYET TAHMİNİ İÇİN BASİT YARDIMCI FONKSİYON ===
+    string ResimGetir(string ad, int id)
+    {
+        // Yaygın kadın isimleri listesi (Büyük/Küçük harf duyarlılığını kaldırmak için hepsini küçük yazalım)
+        string[] kadinIsimleri = {
+            "ayşe", "fatma", "zeynep", "elif", "merve", "gamze", "seda", "hatice", "büşra", "kübra", "esra",
+            "aslı", "banu", "ceylan", "deniz", "ece", "funda", "gizem", "hale", "ipek", "jale", "lale",
+            "mine", "nazlı", "oya", "pelin", "rana", "selin", "tuğçe", "yasemin", "zuhal", "özge", "özlem"
+        };
+
+        // Adın ilk kelimesini alıp küçük harfe çevirelim (Örn: "Ayşe Gül" -> "ayşe")
+        string ilkIsim = ad.Trim().Split(' ')[0].ToLower();
+
+        // Eğer isim listede varsa "women", yoksa varsayılan olarak "men" klasörünü seç
+        string cinsiyetKlasoru = kadinIsimleri.Contains(ilkIsim) ? "women" : "men";
+
+        // ID'nin son rakamını kullanarak 0-99 arası bir resim numarası seçelim (sabit kalsın diye)
+        // Böylece sayfayı yenileyince resim değişmez.
+        int resimNo = id % 99;
+
+        return $"https://randomuser.me/api/portraits/{cinsiyetKlasoru}/{resimNo}.jpg";
+    }
+}
+
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold">Uzman Kadromuz</h1>
+        <p class="text-muted">Alanında deneyimli doktorlarımızla tanışın.</p>
+        <hr class="w-25 mx-auto text-primary" style="height: 3px; opacity: 1;">
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning text-center">Henüz sistemde kayıtlı doktor bulunmamaktadır.</div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-6 col-lg-3 mb-4">
+                    <div class="card shadow-sm border-0 h-100 text-center doctor-card">
+                        <div class="card-body p-4">
+                            <div class="mb-3">
+                                <img src="@ResimGetir(item.Ad, item.DoktorID)"
+                                     class="rounded-circle shadow border border-3 border-white"
+                                     width="120" height="120"
+                                     style="object-fit: cover;"
+                                     alt="@item.Ad @item.Soyad">
+                            </div>
+
+                            <h5 class="fw-bold mb-1">Dr. @item.Ad @item.Soyad</h5>
+                            <p class="text-primary small fw-bold text-uppercase mb-3">@item.Departman.DepartmanAdi</p>
+
+                            <div class="d-flex justify-content-center gap-2 mb-3">
+                                <span class="badge bg-light text-dark border"><i class="fas fa-envelope"></i> @item.Email</span>
+                            </div>
+
+                            @if (Context.Session.GetString("HastaKullaniciAdi") != null)
+                            {
+                                <a asp-controller="Randevu" asp-action="RandevuAl" class="btn btn-outline-primary btn-sm rounded-pill w-100">Randevu Al</a>
+                            }
+                            else
+                            {
+                                <a asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary btn-sm rounded-pill w-100">Giriş Yap</a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .doctor-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .doctor-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        }
+</style>

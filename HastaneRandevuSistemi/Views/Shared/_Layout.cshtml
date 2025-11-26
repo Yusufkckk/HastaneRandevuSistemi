@@ -1,100 +1,77 @@
 ﻿@using Microsoft.AspNetCore.Http
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - HastaneRandevuSistemi</title>
+    <title>@ViewData["Title"] - Hastane Randevu Sistemi</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/HastaneRandevuSistemi.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">HastaneRandevuSistemi</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom box-shadow mb-3 py-3">
+            <div class="container">
+                <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="fa-solid fa-heart-pulse text-danger"></i> ÖZEL ŞİFA HASTANESİ
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Hakkimizda">Hakkımızda</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Doktorlar">Doktorlarımız</a>
                         </li>
                     </ul>
 
                     <ul class="navbar-nav">
                         @if (Context.Session.GetString("AdminKullaniciAdi") != null)
                         {
-                            // 1. Admin GİRİŞ YAPMIŞSA
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle text-warning" href="#" data-bs-toggle="dropdown">
                                     <i class="fa-solid fa-user-shield"></i> @Context.Session.GetString("AdminKullaniciAdi")
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li>
-                                        <a class="dropdown-item" asp-area="" asp-controller="Admin" asp-action="Index">
-                                            <i class="fa-solid fa-table-columns"></i> Dashboard
-                                        </a>
-                                    </li>
+                                <ul class="dropdown-menu dropdown-menu-end shadow">
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Index">Dashboard</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item" asp-area="" asp-controller="Admin" asp-action="Logout">
-                                            <i class="fa-solid fa-sign-out-alt"></i> Çıkış Yap
-                                        </a>
-                                    </li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Logout">Çıkış Yap</a></li>
                                 </ul>
                             </li>
                         }
                         else if (Context.Session.GetString("HastaKullaniciAdi") != null)
                         {
-                            // 2. Hasta GİRİŞ YAPMIŞSA - MENÜ
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle text-light" href="#" data-bs-toggle="dropdown">
                                     <i class="fa-solid fa-hospital-user"></i> @Context.Session.GetString("HastaKullaniciAdi")
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li>
-                                        <a class="dropdown-item" asp-area="" asp-controller="Randevu" asp-action="Index">
-                                            <i class="fa-solid fa-calendar-check"></i> Randevularım
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" asp-area="" asp-controller="Randevu" asp-action="RandevuAl">
-                                            <i class="fa-solid fa-plus-circle"></i> Randevu Al
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="Profil">
-                                            <i class="fa-solid fa-user-gear"></i> Profilim
-                                        </a>
-                                    </li>
+                                <ul class="dropdown-menu dropdown-menu-end shadow">
+                                    <li><a class="dropdown-item" asp-controller="Randevu" asp-action="Index">Randevularım</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Randevu" asp-action="RandevuAl">Randevu Al</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="Profil">Profilim</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="Logout">
-                                            <i class="fa-solid fa-sign-out-alt"></i> Çıkış Yap
-                                        </a>
-                                    </li>
+                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="Logout">Çıkış Yap</a></li>
                                 </ul>
                             </li>
                         }
                         else
                         {
-                            // 3. Kimse GİRİŞ YAPMAMIŞSA
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Login">
-                                    <i class="fa-solid fa-user-shield"></i> Admin Girişi
+                            <li class="nav-item me-2">
+                                <a class="btn btn-outline-light btn-sm" asp-controller="Account" asp-action="Login">
+                                    <i class="fa-solid fa-right-to-bracket"></i> Giriş Yap
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">
-                                    <i class="fa-solid fa-user"></i> Hasta Girişi / Kayıt Ol
+                                <a class="btn btn-primary btn-sm" asp-controller="Account" asp-action="Register">
+                                    <i class="fa-solid fa-user-plus"></i> Kayıt Ol
                                 </a>
                             </li>
                         }
@@ -103,17 +80,44 @@
             </div>
         </nav>
     </header>
-    <div class="container">
+
+    <div class="container-fluid p-0">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
-
-    <footer class="border-top footer text-muted">
+    af
+    <footer class="bg-dark text-white mt-auto py-4">
         <div class="container">
-            &copy; 2025 - HastaneRandevuSistemi - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>Özel Şifa Hastanesi</h5>
+                    <p class="small text-muted">Sağlığınız için 7/24 hizmetinizdeyiz. Modern teknolojimiz ve uzman kadromuzla yanınızdayız.</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Hızlı Erişim</h5>
+                    <ul class="list-unstyled small">
+                        <li><a asp-controller="Home" asp-action="Doktorlar" class="text-decoration-none text-muted">Doktorlarımız</a></li>
+                        <li><a asp-controller="Home" asp-action="Hakkimizda" class="text-decoration-none text-muted">Hakkımızda</a></li>
+                        <li><a asp-controller="Randevu" asp-action="RandevuAl" class="text-decoration-none text-muted">Online Randevu</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>İletişim</h5>
+                    <p class="small text-muted">
+                        <i class="fa fa-map-marker-alt"></i> İstanbul, Türkiye<br>
+                        <i class="fa fa-phone"></i> 0212 555 55 55<br>
+                        <i class="fa fa-envelope"></i> info@sifahastanesi.com
+                    </p>
+                </div>
+            </div>
+            <hr class="bg-secondary" />
+            <div class="text-center small text-muted">
+                &copy; 2025 - HastaneRandevuSistemi - Tüm Hakları Saklıdır.
+            </div>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
