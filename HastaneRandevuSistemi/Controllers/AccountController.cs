@@ -4,6 +4,7 @@ using HastaneRandevuSistemi.Helpers; // Şifreleyici için
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http; // Session için
 
+//DEVELOPED BY YUSUFKOÇAK
 namespace HastaneRandevuSistemi.Controllers
 {
     public class AccountController : Controller

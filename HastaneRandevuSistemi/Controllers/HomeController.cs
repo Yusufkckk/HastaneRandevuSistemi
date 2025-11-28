@@ -1,9 +1,11 @@
 ﻿using System.Diagnostics;
-using HastaneRandevuSistemi.Data; // Veritabanı bağlantısı için eklendi
+using HastaneRandevuSistemi.Data; 
 using HastaneRandevuSistemi.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq; // Sıralama ve filtreleme (OrderBy, Take) için gerekli
 using Microsoft.EntityFrameworkCore;
+
+//DEVELOPED BY YUSUFKOÇAK
 
 namespace HastaneRandevuSistemi.Controllers
 {

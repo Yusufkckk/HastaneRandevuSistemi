@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http; // Session için
 using Microsoft.AspNetCore.Mvc.Rendering; // SelectList için
 
+//DEVELOPED BY YUSUFKOÇAK
+
 namespace HastaneRandevuSistemi.Controllers
 {
     public class RandevuController : Controller

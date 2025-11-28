@@ -5,6 +5,8 @@ using System.Linq;
 using Microsoft.AspNetCore.Http;
 using HastaneRandevuSistemi.Models;
 
+//DEVELOPED BY YUSUFKOÇAK
+
 namespace HastaneRandevuSistemi.Controllers
 {
     public class AdminController : Controller
